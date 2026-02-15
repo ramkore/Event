@@ -117,8 +117,8 @@ Environment: development
 Once Node.js is installed and working:
 
 ```powershell
-# Navigate to the server directory if not already there
-cd D:\Work\1.Development\Event\server
+# Navigate to the repository root directory
+cd path\to\Event
 
 # Login to Vercel (opens browser for authentication)
 npx vercel login
@@ -126,6 +126,8 @@ npx vercel login
 # Deploy to Vercel
 npx vercel
 ```
+
+Note: Replace `path\to\Event` with the actual path to your Event repository. The deployment should be run from the repository root directory where `vercel.json` is located.
 
 Follow the prompts in the terminal to complete the deployment.
 

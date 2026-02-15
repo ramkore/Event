@@ -107,9 +107,10 @@ Event/
 
 3. Deploy:
    ```bash
-   cd server
    npx vercel
    ```
+   
+   Note: Run this command from the repository root directory.
 
 ## Troubleshooting
 

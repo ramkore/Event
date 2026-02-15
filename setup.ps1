@@ -81,8 +81,9 @@ Write-Host "  cd server" -ForegroundColor White
 Write-Host "  npm run dev" -ForegroundColor White
 Write-Host ""
 Write-Host "To deploy to Vercel, run:" -ForegroundColor Yellow
-Write-Host "  cd server" -ForegroundColor White
 Write-Host "  npx vercel" -ForegroundColor White
+Write-Host ""
+Write-Host "Note: Run vercel commands from the repository root directory." -ForegroundColor Yellow
 Write-Host ""
 
 Read-Host "Press Enter to exit"
