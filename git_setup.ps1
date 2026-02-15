@@ -2,8 +2,8 @@ $env:Path += ";C:\Program Files\Git\cmd"
 Write-Host "Added Git to PATH for this session." -ForegroundColor Green
 
 # Configure Git User (Required for commit)
-git config --global user.email "you@example.com"
-git config --global user.name "Bellcorp User"
+git config --global user.email "ramesh@sreyas.ac.in"
+git config --global user.name "ramkore"
 
 # Initialize
 if (-not (Test-Path ".git")) {
