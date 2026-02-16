@@ -55,6 +55,7 @@ const EventDiscovery = () => {
                         <option value="Sports">Sports</option>
                         <option value="Music">Music</option>
                         <option value="Business">Business</option>
+                        <option value="Other">Other</option>
                     </select>
                     <input
                         type="text"

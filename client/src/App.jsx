@@ -22,6 +22,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/" element={<Events />} />
+                    <Route path="/events" element={<Events />} />
                     <Route path="/events/:id" element={<EventDetails />} />
                     <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                 </Routes>
