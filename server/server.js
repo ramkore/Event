@@ -21,7 +21,12 @@ app.use(async (req, res, next) => {
             dbConnected = true;
         } catch (error) {
             console.error('Database connection failed:', error.message);
-            return res.status(500).json({ message: 'Database connection failed' });
+            return res.status(500).json({
+                message: 'Database connection failed',
+                error: error.message,
+                hasDbUri: !!process.env.DB_URI,
+                dbUriLength: process.env.DB_URI ? process.env.DB_URI.length : 0
+            });
         }
     }
     next();
