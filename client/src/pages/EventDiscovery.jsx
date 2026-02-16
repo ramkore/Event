@@ -1,24 +1,50 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const EventDiscovery = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
-    const [category, setCategory] = useState('');
-    const [location, setLocation] = useState('');
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalEvents, setTotalEvents] = useState(0);
+
+    // Read filters from URL (maintains browsing state across navigation)
+    const search = searchParams.get('search') || '';
+    const category = searchParams.get('category') || '';
+    const location = searchParams.get('location') || '';
+    const dateFrom = searchParams.get('dateFrom') || '';
+    const dateTo = searchParams.get('dateTo') || '';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+
+    const updateParam = (key, value) => {
+        const newParams = new URLSearchParams(searchParams);
+        if (value) {
+            newParams.set(key, value);
+        } else {
+            newParams.delete(key);
+        }
+        // Reset to page 1 when filters change (except when changing page itself)
+        if (key !== 'page') {
+            newParams.delete('page');
+        }
+        setSearchParams(newParams);
+    };
 
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            const params = {};
+            const params = { page };
             if (search) params.search = search;
             if (category) params.category = category;
             if (location) params.location = location;
+            if (dateFrom) params.dateFrom = dateFrom;
+            if (dateTo) params.dateTo = dateTo;
 
             const res = await api.get('/events', { params });
             setEvents(res.data.events);
+            setTotalPages(res.data.totalPages);
+            setTotalEvents(res.data.totalEvents);
         } catch (error) {
             console.error('Error fetching events:', error);
         } finally {
@@ -26,29 +52,30 @@ const EventDiscovery = () => {
         }
     };
 
-    // Debounce search
+    // Debounce fetch when filters change
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchEvents();
         }, 300);
         return () => clearTimeout(timer);
-    }, [search, category, location]);
+    }, [search, category, location, dateFrom, dateTo, page]);
 
     return (
         <div className="container mx-auto mt-8">
+            {/* Filter Bar */}
             <div className="bg-white p-6 rounded shadow mb-8">
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4 mb-4">
                     <input
                         type="text"
                         placeholder="Search events..."
                         className="border p-2 rounded flex-grow"
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => updateParam('search', e.target.value)}
                     />
                     <select
                         className="border p-2 rounded"
                         value={category}
-                        onChange={(e) => setCategory(e.target.value)}
+                        onChange={(e) => updateParam('category', e.target.value)}
                     >
                         <option value="">All Categories</option>
                         <option value="Tech">Tech</option>
@@ -62,11 +89,45 @@ const EventDiscovery = () => {
                         placeholder="Location..."
                         className="border p-2 rounded"
                         value={location}
-                        onChange={(e) => setLocation(e.target.value)}
+                        onChange={(e) => updateParam('location', e.target.value)}
                     />
+                </div>
+                {/* Date Filter Row */}
+                <div className="flex flex-col md:flex-row gap-4 items-center">
+                    <label className="text-sm text-gray-600 whitespace-nowrap">Date Range:</label>
+                    <input
+                        type="date"
+                        className="border p-2 rounded"
+                        value={dateFrom}
+                        onChange={(e) => updateParam('dateFrom', e.target.value)}
+                    />
+                    <span className="text-gray-400">to</span>
+                    <input
+                        type="date"
+                        className="border p-2 rounded"
+                        value={dateTo}
+                        onChange={(e) => updateParam('dateTo', e.target.value)}
+                    />
+                    {(search || category || location || dateFrom || dateTo) && (
+                        <button
+                            onClick={() => setSearchParams({})}
+                            className="text-sm text-red-500 hover:text-red-700 underline ml-auto"
+                        >
+                            Clear All Filters
+                        </button>
+                    )}
                 </div>
             </div>
 
+            {/* Results Count */}
+            {!loading && (
+                <p className="text-sm text-gray-500 mb-4">
+                    Showing {events.length} of {totalEvents} events
+                    {(search || category || location || dateFrom || dateTo) && ' (filtered)'}
+                </p>
+            )}
+
+            {/* Event Grid */}
             {loading ? (
                 <p className="text-center text-gray-500">Loading events...</p>
             ) : (
@@ -94,6 +155,35 @@ const EventDiscovery = () => {
                     ) : (
                         <p className="col-span-full text-center text-gray-500">No events found matching your criteria.</p>
                     )}
+                </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-8 mb-8">
+                    <button
+                        onClick={() => updateParam('page', String(page - 1))}
+                        disabled={page <= 1}
+                        className={`px-4 py-2 rounded ${page <= 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                    >
+                        Previous
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                        <button
+                            key={p}
+                            onClick={() => updateParam('page', String(p))}
+                            className={`px-3 py-2 rounded ${p === page ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                        >
+                            {p}
+                        </button>
+                    ))}
+                    <button
+                        onClick={() => updateParam('page', String(page + 1))}
+                        disabled={page >= totalPages}
+                        className={`px-4 py-2 rounded ${page >= totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                    >
+                        Next
+                    </button>
                 </div>
             )}
         </div>
