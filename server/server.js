@@ -6,14 +6,26 @@ const connectDB = require('./config/db');
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
-
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// Connect to database on first request (lazy connection for serverless)
+let dbConnected = false;
+app.use(async (req, res, next) => {
+    if (!dbConnected) {
+        try {
+            await connectDB();
+            dbConnected = true;
+        } catch (error) {
+            console.error('Database connection failed:', error.message);
+            return res.status(500).json({ message: 'Database connection failed' });
+        }
+    }
+    next();
+});
 
 // Basic route
 app.get('/', (req, res) => {
