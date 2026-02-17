@@ -6,7 +6,7 @@ const User = require('../models/User');
 // @access  Public
 const getEvents = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search, category, location, dateFrom, dateTo } = req.query;
+        const { page = 1, limit = 10, search, category, location, startDate, endDate } = req.query;
         const query = {};
 
         // Search by name (case-insensitive regex)
@@ -25,10 +25,10 @@ const getEvents = async (req, res) => {
         }
 
         // Filter by date range
-        if (dateFrom || dateTo) {
+        if (startDate || endDate) {
             query.date = {};
-            if (dateFrom) query.date.$gte = new Date(dateFrom);
-            if (dateTo) query.date.$lte = new Date(dateTo);
+            if (startDate) query.date.$gte = new Date(startDate);
+            if (endDate) query.date.$lte = new Date(endDate);
         }
 
         const events = await Event.find(query)

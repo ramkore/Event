@@ -11,7 +11,7 @@ A full-stack event management platform facilitating event discovery, user authen
 - **Dashboard**: View upcoming and past registrations, with cancellation functionality.
 - **Responsive Design**: Built with TailwindCSS for mobile and desktop.
 - **Toast Notifications**: Interactive feedback for user actions.
-
+ey  BoarD
 ## Tech Stack
 
 - **Frontend**: React (Vite), TailwindCSS, React Router DOM, Axios, React Toastify.
