@@ -30,11 +30,26 @@ const registerForEvent = async (req, res) => {
             return res.status(400).json({ message: 'Event is fully booked' });
         }
 
-        // Create registration
-        const registration = await Registration.create({
+        // Check if there's a cancelled registration to reactivate
+        const cancelledRegistration = await Registration.findOne({
             user: req.user.id,
-            event: eventId
+            event: eventId,
+            status: 'cancelled'
         });
+
+        let registration;
+        if (cancelledRegistration) {
+            // Reactivate cancelled registration
+            cancelledRegistration.status = 'confirmed';
+            await cancelledRegistration.save();
+            registration = cancelledRegistration;
+        } else {
+            // Create new registration
+            registration = await Registration.create({
+                user: req.user.id,
+                event: eventId
+            });
+        }
 
         // Decrement available seats
         event.availableSeats -= 1;
