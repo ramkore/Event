@@ -14,10 +14,11 @@ const registerForEvent = async (req, res) => {
             return res.status(404).json({ message: 'Event not found' });
         }
 
-        // Check if user already registered
+        // Check if user already registered (only block if status is confirmed)
         const existingRegistration = await Registration.findOne({
             user: req.user.id,
-            event: eventId
+            event: eventId,
+            status: 'confirmed'
         });
 
         if (existingRegistration) {
